@@ -36,9 +36,9 @@
                         </Grid.RowDefinitions>
                         <Label x:Name="LblPath" Content="Enter Name Space" Width="100" Margin="10,10,630,300" FontWeight="Bold"/>
                         <Label x:Name="LblFolderPath" Content="Folder Path to Save Files" Margin="319,10,10,300" FontWeight="Bold"/>
-                        <TextBox x:Name="TxtNameSpace" Height="23" TextWrapping="Wrap" Margin="10,34,446,277" Text="oandp_redesign_models.Models.Database.OANDP"/>
-                        <TextBox x:Name="TxtMappingNameSpace" Height="23" TextWrapping="Wrap" Margin="10,92,446,219" Text="oandp_redesign_common.Mapping.OANDP"/>
-                        <TextBox x:Name="TxtPathDirectory" Height="23" TextWrapping="Wrap" Margin="319,34,10,277" Text="F:\Users\atatum\Documents\OANDAuto"/>
+                        <TextBox x:Name="TxtNameSpace" Height="23" TextWrapping="Wrap" Margin="10,34,446,277" />
+                        <TextBox x:Name="TxtMappingNameSpace" Height="23" TextWrapping="Wrap" Margin="10,92,446,219" />
+                        <TextBox x:Name="TxtPathDirectory" Height="23" TextWrapping="Wrap" Margin="319,34,10,277" />
                         <Button x:Name="btnGetModels" Content="Get Models and Mapping" HorizontalAlignment="Left" Margin="319,92,0,0" VerticalAlignment="Top" Width="157" Click="btnGetModels_OnClick"/>
                         <TextBox x:Name="TxtColumnType" HorizontalAlignment="Left" Height="272" Margin="10,120,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="722" AcceptsReturn="True" AcceptsTab="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.RowSpan="2"/>
                         <Label x:Name="LblPath_Copy" Content="Enter Name Space" Margin="10,10,446,300" FontWeight="Bold"/>

@@ -16,7 +16,7 @@ namespace AutoModelMapping
     /// </summary>
     public partial class MainWindow : Window
     {
-        private string DefaultConnectionString => ConfigurationManager.ConnectionStrings["defaultdb"].ConnectionString;
+        private static string DefaultConnectionString => ConfigurationManager.ConnectionStrings["defaultdb"].ConnectionString;
         private string ConnectionString { get; set; }
 
         public MainWindow()
@@ -32,25 +32,23 @@ namespace AutoModelMapping
             TxtTables.Items.Clear();
             foreach (var dbTable in dbTables.OrderBy(x=>x))
             {
-                 TxtTables.Items.Add(string.Format("{0}{1}", dbTable, Environment.NewLine));
+                 TxtTables.Items.Add($"{dbTable}{Environment.NewLine}");
             }
         }
 
         public static List<string> GetTables(string connectionString)
         {
-            DataTable dataTable = new DataTable();
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                DataTable schema = connection.GetSchema("Tables");
-                List<string> TableNames = new List<string>();
+                var schema = connection.GetSchema("Tables");
+                var tableNames = new List<string>();
                 foreach (DataRow row in schema.Rows)
                 {
-                    TableNames.Add(row[2].ToString().Replace("\r\n", string.Empty));
+                    tableNames.Add(row[2].ToString().Replace("\r\n", string.Empty));
                 }
 
-                return TableNames;
+                return tableNames;
             }
         }
 
@@ -68,19 +66,19 @@ namespace AutoModelMapping
 
         private void btnGetModels_OnClick(object sender, RoutedEventArgs e)
         {
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
                 #region ModelGeneration
                 foreach (var item in TxtTables.SelectedItems)
                 {
                     var table = item.ToString().Replace("\r\n", string.Empty);
-                    string beginClass = string.Format("namespace {0}{1}{2}{3}\tpublic class {4}{5}\t{6}\t{7}", TxtNameSpace.Text, Environment.NewLine, "{", Environment.NewLine, table.TablePrettify(), Environment.NewLine, "{", Environment.NewLine);
-                    StringBuilder sb = new StringBuilder();
+                    var beginClass = $"namespace {TxtNameSpace.Text}{Environment.NewLine}{{{Environment.NewLine}\tpublic class {table.TablePrettify()}{Environment.NewLine}\t{{\t{Environment.NewLine}";
+                    var sb = new StringBuilder();
 
-                    using (SqlCommand command = new SqlCommand(string.Format("select top 1 * from {0}", table), connection))
+                    using (var command = new SqlCommand($"select top 1 * from {table}", connection))
                     {
-                        DataTable dt = new DataTable();
+                        var dt = new DataTable();
                         dt.Load(command.ExecuteReader());
                         foreach (DataColumn dataColumn in dt.Columns)
                         {
@@ -88,8 +86,8 @@ namespace AutoModelMapping
                         }
                     }
 
-                    string endClass = String.Format("\t{0}{1}{2}", "}", Environment.NewLine, "}");
-                    var finalClass = string.Format("{0}{1}{2}{3}", beginClass, sb, endClass, Environment.NewLine);
+                    var endClass = $"\t}}{Environment.NewLine}}}";
+                    var finalClass = $"{beginClass}{sb}{endClass}{Environment.NewLine}";
                     TxtColumnType.Text += finalClass;
 
                     if (!string.IsNullOrWhiteSpace(TxtPathDirectory.Text))
@@ -99,9 +97,9 @@ namespace AutoModelMapping
                             Directory.CreateDirectory(TxtPathDirectory.Text);
                         }
 
-                        var fullDirectory = string.Format(@"{0}\Models\", TxtPathDirectory.Text);
+                        var fullDirectory = $@"{TxtPathDirectory.Text}\Models\";
                        
-                        System.IO.File.WriteAllText(string.Format(@"{0}{1}.cs", fullDirectory, table.TablePrettify()), finalClass);
+                        File.WriteAllText($@"{fullDirectory}{table.TablePrettify()}.cs", finalClass);
                     }
                 }
                 #endregion
@@ -110,21 +108,18 @@ namespace AutoModelMapping
                 foreach (var item in TxtTables.SelectedItems)
                 {
                     var table = item.ToString().Replace("\r\n", string.Empty);
-                    var beginMappingClass = string.Format("{0}{1}using {2};{3}{4}namespace {5}{6}{7}{8}",
-                    "using System.Data.Entity.ModelConfiguration;", Environment.NewLine, TxtNameSpace.Text,
-                    Environment.NewLine, Environment.NewLine, TxtMappingNameSpace.Text, Environment.NewLine, "{", Environment.NewLine);
+                    var beginMappingClass = $"using System.Data.Entity.ModelConfiguration;{Environment.NewLine}using {TxtNameSpace.Text};{Environment.NewLine}{Environment.NewLine}namespace {TxtMappingNameSpace.Text}{Environment.NewLine}{{{Environment.NewLine}";
 
-                    beginMappingClass += string.Format("\tpublic class {0}Map : EntityTypeConfiguration<{1}>{2}\t{3}{4}\t\tpublic {5}Map(){6}\t\t{7}{8}{9}{10}",
-                        table.TablePrettify(), table.TablePrettify(), Environment.NewLine, "{" ,Environment.NewLine, table.TablePrettify(), Environment.NewLine, "{", Environment.NewLine, string.Format("\t\t\tthis.ToTable(\"{0}\", \"dbo\");", table), Environment.NewLine);
+                    beginMappingClass += $"\tpublic class {table.TablePrettify()}Map : EntityTypeConfiguration<{table.TablePrettify()}>{Environment.NewLine}\t{{{Environment.NewLine}\t\tpublic {table.TablePrettify()}Map(){Environment.NewLine}\t\t{{{Environment.NewLine}{string.Format("\t\t\tthis.ToTable(\"{0}\", \"dbo\");", table)}{Environment.NewLine}";
 
-                    StringBuilder sb = new StringBuilder();
+                    var sb = new StringBuilder();
 
-                    using (SqlCommand command = new SqlCommand(string.Format("select top 1 * from {0}", table), connection))
+                    using (var command = new SqlCommand($"select top 1 * from {table}", connection))
                     {
-                        DataTable dt = new DataTable();
+                        var dt = new DataTable();
                         dt.Load(command.ExecuteReader());
                         //ideally the first column is the primary key
-                        sb.Append(string.Format("\t\t\tthis.HasKey(x => x.{0});{1}", dt.Columns[0].ColumnName.ColumnPrettify(), Environment.NewLine));
+                        sb.Append($"\t\t\tthis.HasKey(x => x.{dt.Columns[0].ColumnName.ColumnPrettify()});{Environment.NewLine}");
                         foreach (DataColumn dataColumn in dt.Columns)
                         {
                             sb.Append(SqlHelp.NetMapping(dataColumn.ColumnName.ColumnPrettify(), dataColumn.ColumnName));
@@ -133,15 +128,15 @@ namespace AutoModelMapping
 
                     var mappingString = beginMappingClass;
                     mappingString += sb.ToString();
-                    mappingString += string.Format("\t\t{0}{1}\t{2}{3}{4}", "}", Environment.NewLine, "}", Environment.NewLine, "}");
+                    mappingString += $"\t\t}}{Environment.NewLine}\t}}{Environment.NewLine}}}";
 
                     TxtColumnType.Text += mappingString;
 
                     if (!string.IsNullOrWhiteSpace(TxtPathDirectory.Text))
                     {
-                        var fullDirectory = string.Format(@"{0}\Mapping\", TxtPathDirectory.Text);
+                        var fullDirectory = $@"{TxtPathDirectory.Text}\Mapping\";
                         
-                        System.IO.File.WriteAllText(string.Format(@"{0}{1}Map.cs", fullDirectory, table.TablePrettify()), mappingString);
+                        File.WriteAllText($@"{fullDirectory}{table.TablePrettify()}Map.cs", mappingString);
                     }
                 }
                 
