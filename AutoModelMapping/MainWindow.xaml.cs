@@ -92,14 +92,14 @@ namespace AutoModelMapping
 
                     if (!string.IsNullOrWhiteSpace(TxtPathDirectory.Text))
                     {
-                        if (!Directory.Exists(TxtPathDirectory.Text))
+                        var modelDirectory = $@"{TxtPathDirectory.Text}\Models\";
+
+                        if (!Directory.Exists(modelDirectory))
                         {
-                            Directory.CreateDirectory(TxtPathDirectory.Text);
+                            Directory.CreateDirectory(modelDirectory);
                         }
 
-                        var fullDirectory = $@"{TxtPathDirectory.Text}\Models\";
-                       
-                        File.WriteAllText($@"{fullDirectory}{table.TablePrettify()}.cs", finalClass);
+                        File.WriteAllText($@"{modelDirectory}{table.TablePrettify()}.cs", finalClass);
                     }
                 }
                 #endregion
@@ -134,9 +134,14 @@ namespace AutoModelMapping
 
                     if (!string.IsNullOrWhiteSpace(TxtPathDirectory.Text))
                     {
-                        var fullDirectory = $@"{TxtPathDirectory.Text}\Mapping\";
-                        
-                        File.WriteAllText($@"{fullDirectory}{table.TablePrettify()}Map.cs", mappingString);
+                        var mappingDirectory = $@"{TxtPathDirectory.Text}\Mapping\";
+
+                        if (!Directory.Exists(mappingDirectory))
+                        {
+                            Directory.CreateDirectory(mappingDirectory);
+                        }
+
+                        File.WriteAllText($@"{mappingDirectory}{table.TablePrettify()}Map.cs", mappingString);
                     }
                 }
                 
