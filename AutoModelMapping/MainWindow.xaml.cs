@@ -8,13 +8,15 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using AutoModelMapping.Helpers;
+using Ookii.Dialogs.Wpf;
+using MahApps.Metro.Controls;
 
 namespace AutoModelMapping
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
         private static string DefaultConnectionString => ConfigurationManager.ConnectionStrings["defaultdb"].ConnectionString;
         private string ConnectionString { get; set; }
@@ -64,8 +66,10 @@ namespace AutoModelMapping
             }
         }
 
-        private void btnGetModels_OnClick(object sender, RoutedEventArgs e)
+        private void BtnGetModels_OnClick(object sender, RoutedEventArgs e)
         {
+            TxtResults.Text = string.Empty;
+
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
@@ -88,7 +92,7 @@ namespace AutoModelMapping
 
                     var endClass = $"\t}}{Environment.NewLine}}}";
                     var finalClass = $"{beginClass}{sb}{endClass}{Environment.NewLine}";
-                    TxtColumnType.Text += finalClass;
+                    TxtResults.Text += finalClass;
 
                     if (!string.IsNullOrWhiteSpace(TxtPathDirectory.Text))
                     {
@@ -130,7 +134,7 @@ namespace AutoModelMapping
                     mappingString += sb.ToString();
                     mappingString += $"\t\t}}{Environment.NewLine}\t}}{Environment.NewLine}}}";
 
-                    TxtColumnType.Text += mappingString;
+                    TxtResults.Text += mappingString;
 
                     if (!string.IsNullOrWhiteSpace(TxtPathDirectory.Text))
                     {
@@ -148,6 +152,18 @@ namespace AutoModelMapping
                 #endregion
                 connection.Close();
             }
+        }
+
+        private void btnFolderBrowser_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new VistaFolderBrowserDialog
+            {
+                Description = "Please select a folder.",
+                UseDescriptionForTitle = true
+            };
+            var showDialog = dialog.ShowDialog(this);
+            if (showDialog != null && (bool) showDialog)
+                TxtPathDirectory.Text = dialog.SelectedPath;
         }
     }
 }
