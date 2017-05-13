@@ -1,4 +1,5 @@
-﻿﻿# AutoModelMapping
+# AutoModelMapping
+
 This WPF Application was designed on the fly to help speed up the process of creating models and mappings from a database. This was geared towards Entity Framework Code First.
 
 ## How To Use
