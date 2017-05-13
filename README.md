@@ -1,10 +1,10 @@
-﻿# AutoModelMapping
+﻿﻿# AutoModelMapping
 This WPF Application was designed on the fly to help speed up the process of creating models and mappings from a database. This was geared towards Entity Framework Code First.
 
 ## How To Use
 * On the **Get Tables** tab you can either type in a database string or you can create a ConnectionStrings.config file and leave the text box blank. ConnectionStrings.config would look similar to:
 
-```csharp
+```xml
 <connectionStrings>
   <add name="defaultdb" providerName="System.Data.SqlClient" connectionString="YourConnectionStringHere"/>
 </connectionStrings>
@@ -16,6 +16,6 @@ This WPF Application was designed on the fly to help speed up the process of cre
 
 **Any contributions would be awesome!**
 
-_Thank you,
-[AJ Tatum](https://ajtatum.com)_
-_[My LinkedIn Profile](https://www.linkedin.com/in/ajtatum/)_
+_Thank you,  
+[AJ Tatum](https://ajtatum.com)  
+[My LinkedIn Profile](https://www.linkedin.com/in/ajtatum/)_
